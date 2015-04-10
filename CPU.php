@@ -1,28 +1,4 @@
 <?php
-/*
- * CPU.php
- * 
- * Copyright 2015 knF <knf@knf-HP-Pavilion-dv7-Notebook-PC>
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
- * 
- * 
- */
-
-
 
 class CPU
 {
@@ -34,6 +10,7 @@ class CPU
 	private $regs = array();
 	private $program_memory = array();
 	private $data_memory = array();
+	private $gpio_port = array();
 	
 	/**
 	 * Constructor of class CPU.
@@ -55,16 +32,31 @@ class CPU
 		
 		$this->program_memory = array_fill(0,self::P_MEM_SIZE,'UNK');
 		$this->data_memory = array_fill(0,self::D_MEM_SIZE,0);
+		$this->gpio_port = array(
+			"DEV" => "Z-STATE", // Undetermined state - Device id 
+			"STAT" => "Z-STATE", // Undetermined state - Communication status flag (true -> completed, false -> WIP)
+			"DATA" => "Z-STATE", // Undetermined state - Data of the transmission
+		);
 		
 		return true;
 	}
 	
 	public function getStatus() 
 	{
+		
+		if ($this->regs["PC"] >= self::P_MEM_SIZE)
+		{
+			$exec_status = false;
+		} else {
+			$exec_status = true;
+		}
+		
 		// Returns the status of the machine
 		return array(
 			"regs" => $this->regs,
 			"data_memory" => $this->data_memory,
+			"GPIO_port" => $this -> gpio_port,
+			"execution" => $exec_status,
 		);
 	}
 	
@@ -100,7 +92,7 @@ class CPU
 		
 	}
 	
-	public function run() {
+	public function run() { //not sure this is a good method
 		//Executes the program in memory
 
 		while ($this->regs["PC"] < self::P_MEM_SIZE) {
@@ -108,6 +100,18 @@ class CPU
 			$this->execCommand($this->program_memory[$this->regs["PC"]]);
 			$this->regs["PC"]++;
 			usleep(1/self::FREQUENCY*1000000);
+		}
+		
+	}
+	
+	public function step() {
+		//Executes one command of the program in memory
+
+		if ($this->regs["PC"] < self::P_MEM_SIZE) {
+			echo $this->regs["PC"]." / ".$this->program_memory[$this->regs["PC"]]."\n";
+			$this->execCommand($this->program_memory[$this->regs["PC"]]);
+			$this->regs["PC"]++;
+			usleep(1/self::FREQUENCY*1000000); // da migliorare in teoria dovrebbe impiegare solo la differenza di tempo tra l¡ultima esecuzione e il tempo attuale
 		}
 		
 	}
@@ -120,11 +124,12 @@ class CPU
 		$command = $this->parseCommand($cmd);
 		
 		switch ($command[0]) {
+			// MATH
 			case "ADD":
 				$result = $this->add($command[1]);
 				break;
 			case "SUB":
-				$result = $this->add($command[1]);
+				$result = $this->sub($command[1]);
 				break;
 			case "MUL":
 				$result = $this->multiply($command[1]);
@@ -132,15 +137,25 @@ class CPU
 			case "DIV":
 				$result = $this->divide($command[1]);
 				break;
+			// Memory
 			case "LOAD":
 				$result = $this->load($command[1]);
 				break;
 			case "STORE":
 				$result = $this->store($command[1]);
 				break;
+			// Branch
 			case "JNZ":
 				$result = $this->jumpNotZero($command[1]);
 				break;
+			// I/O
+			case "READ":
+				$result = $this->readInput($command[1]);
+				break;
+			case "WRITE":
+				$result = $this->writeOutput($command[1]);
+				break;
+			// Execution
 			case "UNK":
 			case "HALT":
 				$this->regs["PC"] = self::P_MEM_SIZE;
@@ -154,6 +169,20 @@ class CPU
 		
 		return $result;
 		
+	}
+	
+	public function getGPIO() 
+	{
+		return $this->gpio_port;
+	}
+	
+	public function setGPIO($device_id,$data) 
+	{
+		$this->gpio_port["DEV"] = $device_id;
+		$this->gpio_port["DATA"] = $data;
+		$this->gpio_port["STAT"] = true;
+		
+		return true;
 	}
 	
 	/*
@@ -192,7 +221,8 @@ class CPU
 		if ($this->regs["ACC"] <> 0) {
 			$this->regs["PC"] = $value - 1;
 		}
-			return true;		
+		
+		return true;		
 		
 	}						
 
@@ -203,6 +233,13 @@ class CPU
 	private function add($value) 
 	{
 		$this->regs["ACC"] = $this->regs["ACC"] + intval($value);
+		
+		return true;
+	}
+	
+	private function sub($value) 
+	{
+		$this->regs["ACC"] = $this->regs["ACC"] - intval($value);
 		
 		return true;
 	}
@@ -220,10 +257,58 @@ class CPU
 		if ($value == 0) { //Division by 0
 			throw new Exception("DIVISION BY 0!");
 		}
-		$this->regs["ACC"] = $this->regs["ACC"] / intval($value);
+		$this->regs["ACC"] = intval($this->regs["ACC"] / $value);
 		
 		return true;
 	}
+	
+	/*
+	 * I/O functions
+	 */
+	 
+	private function readInput($destination) {
+	/*
+	 * Read the values returned by the device identified by the accumulator and stores them in the destination memory cell
+	 */
+		$destination = intval($destination);
+		
+		if ($destination <0 or $destination >= self::D_MEM_SIZE)
+		{ //check memory boundaries
+			throw new Exception("INPUT - DATA MEMORY WRITE OUT OF BOUNDARIES ".$destination);
+		}
+
+		$this->gpio_port["DEV"] = $this->regs["ACC"];
+
+		if ($this->gpio_port["STAT"] !== true)
+		{ // data is not ready to be read
+			$this->regs["PC"] = $this->regs["PC"] - 1; //repeat the instruction
+		} 
+		$this->data_memory[$destination] = $this->gpio_port["DATA"]; //copies the values from the IN port to a given memory area
+		$this->gpio_port["STAT"] = false; // invalidates the data in the port 
+		
+				
+		return true;
+	}
+	
+	private function writeOutput($source) {
+	/*
+	 * Writes the values in the source memory area to the device identified by the accumulator
+	 */
+		$source = intval($source);
+		
+		if ($source <0 or $source >= self::D_MEM_SIZE)
+		{ //check memory boundaries
+			throw new Exception("OUTPUT - DATA MEMORY READ OUT OF BOUNDARIES ".$source);
+		}
+
+		$this->gpio_port["DEV"] = $this->regs["ACC"];
+
+		$this->gpio_port["DATA"] = $this->data_memory[$source]; //copies the values from a given memory area to the output
+		$this->gpio_port["STAT"] = true; //commits the data on the port 
+				
+		return true;
+	}
+		 
 	// ...
 
 }
