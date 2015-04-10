@@ -7,16 +7,16 @@ $m = new machine;
 printf("--- NEW ---\n");
 
 try {
-	echo $m->loadCPUInstruction("LOAD 5") ."\n";
+	echo $m->loadCPUInstruction("LOAD 2") ."\n";
 	echo $m->loadCPUInstruction("MUL 2") ."\n";
 	echo $m->loadCPUInstruction("STORE 1") ."\n";
-	echo $m->loadCPUInstruction("DIV 3") ."\n";
 	echo $m->loadCPUInstruction("ADD 5") ."\n";
 	echo $m->loadCPUInstruction("STORE 4") ."\n";
 	echo $m->loadCPUInstruction("SUB 1") ."\n";
-	echo $m->loadCPUInstruction("JNZ 6") ."\n";
+	echo $m->loadCPUInstruction("JNZ 5") ."\n";
 	echo $m->loadCPUInstruction("WRITE 1") ."\n";
 	echo $m->loadCPUInstruction("READ 9") ."\n";
+	echo $m->loadCPUInstruction("DIV 3") ."\n";
 	
 	$m->run();
 
@@ -33,11 +33,10 @@ $proc = new CPU;
 var_dump($proc->getStatus());
 printf("--- NEW ---\n");
 try {
-/*	echo $proc->execCommand("PUSH 5") ."\n";
+	echo $proc->execCommand("PUSH 5") ."\n";
 	echo $proc->execCommand("ADD 10") ."\n";
-	echo $proc->execCommand("PULL 1") ."\n"; */
-	//echo $proc->execCommand("ERRR 11") ."\n"; */
-/*	
+	echo $proc->execCommand("PULL 1") ."\n";
+	echo $proc->execCommand("ERRR 11") ."\n";
 	echo $proc->loadCommand("LOAD 5") ."\n";
 	echo $proc->loadCommand("MUL 2") ."\n";
 	echo $proc->loadCommand("STORE 1") ."\n";
@@ -62,5 +61,5 @@ catch(Exception $e) {
 }
 
 //print_r($proc->self::P_MEM_SIZE);
-
+*/
 ?>

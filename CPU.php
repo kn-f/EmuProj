@@ -176,11 +176,18 @@ class CPU
 		return $this->gpio_port;
 	}
 	
-	public function setGPIO($device_id,$data) 
+	public function setGPIO($device_id,$data,$status) 
 	{
 		$this->gpio_port["DEV"] = $device_id;
 		$this->gpio_port["DATA"] = $data;
-		$this->gpio_port["STAT"] = true;
+		$this->gpio_port["STAT"] = $status;
+		
+		return true;
+	}
+	
+	public function invalidateGPIO() 
+	{
+		$this->gpio_port["STAT"] = false;
 		
 		return true;
 	}
