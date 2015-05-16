@@ -1,6 +1,8 @@
 <?php
 
-namespace Knf\Robot
+namespace Knf\Robot;
+
+use Exception;
 
 class CPU
 {

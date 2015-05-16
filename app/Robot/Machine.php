@@ -1,9 +1,8 @@
 <?php
 
-namespace Knf\Robot
+namespace Knf\Robot;
 
-//include("CPU.php");
-//include("Device.php");
+use Exception;
 
 class Machine
 {
@@ -41,7 +40,7 @@ class Machine
 				var_dump($gpio_status);
 				
 				//check if device is defined
-				if (!is_a($this->io_devices[$gpio_status["DEV"]],"Device")) {
+				if (!is_a($this->io_devices[$gpio_status["DEV"]],"Knf\Robot\Device")) {
 					throw new Exception("GPIO - INVALID DEVICE ACCESSED: ".$gpio_status["DEV"]);
 				}
 				

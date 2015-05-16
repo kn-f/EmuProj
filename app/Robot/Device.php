@@ -1,6 +1,6 @@
 <?php
 
-namespace Knf\Robot
+namespace Knf\Robot;
 
 class Device
 {
