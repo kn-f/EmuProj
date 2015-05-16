@@ -1,0 +1,6 @@
+.htaccess
+tmp/
+tmp/cache/
+app/log/
+lib/
+
