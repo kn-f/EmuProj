@@ -5,9 +5,9 @@
  */
  
 spl_autoload_register(function ($class) {
-    $class = substr($class, strrpos($class, '\\') + 1);
-	
-    include 'app/Robot/' . $class . '.php';
+   // $class = substr($class, strrpos($class, '\\') + 1);
+	$class=str_replace('\\','/',$class);
+    include 'app/classes/' . $class . '.php';
 });
  
 /*
