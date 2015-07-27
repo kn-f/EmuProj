@@ -1,0 +1,74 @@
+<!--
+   testws.htm
+   
+   Copyright 2015 kn_F <knf@knf-HP-Pavilion-dv7-Notebook-PC>
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+   MA 02110-1301, USA.
+   
+   
+-->
+
+<!doctype html>
+<html>
+   <head>
+      <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.17/angular.min.js"></script>
+      		<meta charset="<?php echo $ENCODING; ?>" />
+		<title>Powered by <?php echo $PACKAGE; ?></title>
+		<base href="<?php echo $SCHEME.'://'.$HOST.':'.$PORT.$BASE.'/'; ?>" />
+		<link rel="stylesheet" href="lib/code.css" type="text/css" />
+		<link rel="stylesheet" href="ui/css/base.css" type="text/css" />
+		<link rel="stylesheet" href="ui/css/theme.css" type="text/css" />
+   </head>
+   <body ng-app="myapp">
+ <div ng-controller="MyController">
+    <div class="content">
+    <button ng-click="myData.doClick(item, $event)">Send AJAX Request</button>
+    <br/>
+    Data from server: {{myData.fromServer}}
+    </div>
+    
+    <div class="footer left">
+        <p>Error log: </p>
+        <p ng-repeat="errorMsg in myData.errorLog track by $index">{{errorMsg}}</p>
+    </div>
+  </div>
+
+  <script>
+    angular.module("myapp", [])
+        .controller("MyController", function($scope, $http) {
+
+            $scope.myData = {};
+            $scope.myData.errorLog=[];
+            $scope.myData.doClick = function(item, event) {
+                
+                $http.defaults.headers.post["X-Requested-With"] = 'XMLHttpRequest';
+                
+                var responsePromise = $http.post("/testAjax",'');
+
+                responsePromise.success(function(data, status, headers, config) {
+                    $scope.myData.fromServer = data.title;
+                    //$scope.myData.errorLog.push(data.error);
+                    console.log(data.error);
+                });
+                responsePromise.error(function(data, status, headers, config) {
+                    alert("AJAX failed!");
+                });
+            }
+
+        } );
+  </script>
+   </body>
+</html>
