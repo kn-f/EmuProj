@@ -163,3 +163,7 @@ code {
 	}
 
 }
+
+.fixedsize { 
+    font-family: fixedsys, LucidaTerminal, monospace; 
+}

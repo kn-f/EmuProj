@@ -23,16 +23,16 @@
 			<th>Class/Plug-in</th>
 			<th>PHP Module</th>
 		</tr>
-		<?php foreach ($classes as $class=>$modules): ?>
+		<?php //foreach ($classes as $class=>$modules): ?>
 		<tr>
-			<td><?php echo $class; ?></td>
+			<td><?php //echo $class; ?></td>
 			<td>
-				<?php foreach ($modules as $module): ?>
-				<input type="checkbox" <?php echo extension_loaded($module)?'checked':''?> onclick="return false"> <?php echo $module; ?><br>
-				<?php endforeach; ?>
+				<?php //foreach ($modules as $module): ?>
+				<input type="checkbox" <?php //echo extension_loaded($module)?'checked':''?> onclick="return false"> <?php //echo $module; ?><br>
+				<?php //endforeach; ?>
 			</td>
 		</tr>
-		<?php endforeach; ?>
+		<?php //endforeach; ?>
 	</table>
 	<ul>
 	<li>The <code>Base</code> class requires all listed PHP modules enabled to function properly.</li>
