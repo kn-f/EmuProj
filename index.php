@@ -91,6 +91,11 @@ function testLandWS() {
     echo json_encode($view);
 }
 
+function moveItem() {
+    $l = new Knf\World\Land;
+    $l->moveItem(0,6,6);
+}
+
 
 $f3->run();
 ?>
