@@ -25,22 +25,25 @@ class Item
     }
 
     // ...
-    
-    public function getSymbol() {
+
+    public function getSymbol()
+    {
         return $this->symbol;
     }
-    
-    public function getPosition() {
+
+    public function getPosition()
+    {
         return $this->position;
     }
-    
-    public function setPosition($x,$y) {
+
+    public function setPosition($x, $y)
+    {
         $this->position = array(
             "X" => $x,
             "Y" => $y,
         );
-        
-        return TRUE;
+
+        return true;
     }
 
 }

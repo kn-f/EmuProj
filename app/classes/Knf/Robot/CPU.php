@@ -83,7 +83,7 @@ class CPU
         // throws exception if memory is full
         $position = array_search('UNK', $this->program_memory);
         if ($position === false) {
-            throw new Exception('PROGRAM MEMORY FULL '.print_r($this->program_memory));
+            throw new Exception('PROGRAM MEMORY FULL ' . print_r($this->program_memory));
         }
 
         $this->program_memory[$position] = $cmd;
@@ -96,7 +96,7 @@ class CPU
         //Executes the program in memory
 
         while ($this->regs['PC'] < self::P_MEM_SIZE) {
-            echo $this->regs['PC'].' / '.$this->program_memory[$this->regs['PC']]."\n";
+            echo $this->regs['PC'] . ' / ' . $this->program_memory[$this->regs['PC']] . "\n";
             $this->execCommand($this->program_memory[$this->regs['PC']]);
             $this->regs['PC']++;
             usleep(1 / self::FREQUENCY * 1000000);
@@ -108,7 +108,7 @@ class CPU
         //Executes one command of the program in memory
 
         if ($this->regs['PC'] < self::P_MEM_SIZE) {
-            echo $this->regs['PC'].' / '.$this->program_memory[$this->regs['PC']]."\n";
+            echo $this->regs['PC'] . ' / ' . $this->program_memory[$this->regs['PC']] . "\n";
             $this->execCommand($this->program_memory[$this->regs['PC']]);
             $this->regs['PC']++;
             usleep(1 / self::FREQUENCY * 1000000); // da migliorare in teoria dovrebbe impiegare solo la differenza di tempo tra l¡ultima esecuzione e il tempo attuale
@@ -122,47 +122,47 @@ class CPU
         $command = $this->parseCommand($cmd);
 
         switch ($command[0]) {
-            // MATH
-            case 'ADD':
-                $result = $this->add($command[1]);
-                break;
-            case 'SUB':
-                $result = $this->sub($command[1]);
-                break;
-            case 'MUL':
-                $result = $this->multiply($command[1]);
-                break;
-            case 'DIV':
-                $result = $this->divide($command[1]);
-                break;
-            // Memory
-            case 'LOAD':
-                $result = $this->load($command[1]);
-                break;
-            case 'STORE':
-                $result = $this->store($command[1]);
-                break;
-            // Branch
-            case 'JNZ':
-                $result = $this->jumpNotZero($command[1]);
-                break;
-            // I/O
-            case 'READ':
-                $result = $this->readInput($command[1]);
-                break;
-            case 'WRITE':
-                $result = $this->writeOutput($command[1]);
-                break;
-            // Execution
-            case 'UNK':
-            case 'HALT':
-                $this->regs['PC'] = self::P_MEM_SIZE;
-                $result = true;
-                break;
+        // MATH
+        case 'ADD':
+            $result = $this->add($command[1]);
+            break;
+        case 'SUB':
+            $result = $this->sub($command[1]);
+            break;
+        case 'MUL':
+            $result = $this->multiply($command[1]);
+            break;
+        case 'DIV':
+            $result = $this->divide($command[1]);
+            break;
+        // Memory
+        case 'LOAD':
+            $result = $this->load($command[1]);
+            break;
+        case 'STORE':
+            $result = $this->store($command[1]);
+            break;
+        // Branch
+        case 'JNZ':
+            $result = $this->jumpNotZero($command[1]);
+            break;
+        // I/O
+        case 'READ':
+            $result = $this->readInput($command[1]);
+            break;
+        case 'WRITE':
+            $result = $this->writeOutput($command[1]);
+            break;
+        // Execution
+        case 'UNK':
+        case 'HALT':
+            $this->regs['PC'] = self::P_MEM_SIZE;
+            $result = true;
+            break;
 
-            default:
-                // throw exception
-                throw new Exception('UNKNOWN COMMAND '.$cmd);
+        default:
+            // throw exception
+            throw new Exception('UNKNOWN COMMAND ' . $cmd);
         }
 
         return $result;
@@ -202,14 +202,14 @@ class CPU
 
     private function store($value)
     {
-        $value = intval($value);  //convert to integer
+        $value = intval($value); //convert to integer
         if ($value >= 0 and $value < self::D_MEM_SIZE) { //check memory boundaries
             $this->data_memory[$value] = $this->regs['ACC'];
 
             return true;
         }
 
-        throw new Exception('PULL OUT OF BOUNDARIES '.$value);
+        throw new Exception('PULL OUT OF BOUNDARIES ' . $value);
     }
 
     /*
@@ -219,7 +219,7 @@ class CPU
     {
         $value = intval($value);
         if ($value < 0 or $value >= self::P_MEM_SIZE) { //check memory boundaries
-            throw new Exception('JUMP OUT OF BOUNDARIES '.$value);
+            throw new Exception('JUMP OUT OF BOUNDARIES ' . $value);
         }
 
         if ($this->regs['ACC'] != 0) {
@@ -272,12 +272,12 @@ class CPU
     private function readInput($destination)
     {
         /*
-     * Read the values returned by the device identified by the accumulator and stores them in the destination memory cell
-     */
+         * Read the values returned by the device identified by the accumulator and stores them in the destination memory cell
+         */
         $destination = intval($destination);
 
         if ($destination < 0 or $destination >= self::D_MEM_SIZE) { //check memory boundaries
-            throw new Exception('INPUT - DATA MEMORY WRITE OUT OF BOUNDARIES '.$destination);
+            throw new Exception('INPUT - DATA MEMORY WRITE OUT OF BOUNDARIES ' . $destination);
         }
 
         $this->gpio_port['DEV'] = $this->regs['ACC'];
@@ -288,19 +288,18 @@ class CPU
         $this->data_memory[$destination] = $this->gpio_port['DATA']; //copies the values from the IN port to a given memory area
         $this->gpio_port['STAT'] = false; // invalidates the data in the port
 
-
         return true;
     }
 
     private function writeOutput($source)
     {
         /*
-     * Writes the values in the source memory area to the device identified by the accumulator
-     */
+         * Writes the values in the source memory area to the device identified by the accumulator
+         */
         $source = intval($source);
 
         if ($source < 0 or $source >= self::D_MEM_SIZE) { //check memory boundaries
-            throw new Exception('OUTPUT - DATA MEMORY READ OUT OF BOUNDARIES '.$source);
+            throw new Exception('OUTPUT - DATA MEMORY READ OUT OF BOUNDARIES ' . $source);
         }
 
         $this->gpio_port['DEV'] = $this->regs['ACC'];

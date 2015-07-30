@@ -27,14 +27,14 @@ class Device
         }
 
         return array(
-            'DATA' => $this->data.' / '.$count,
+            'DATA' => $this->data . ' / ' . $count,
             'STAT' => $status,
         );
     }
 
     public function write($data)
     {
-        $this->data = 'WRITE: '.$data;
+        $this->data = 'WRITE: ' . $data;
 
         return true;
     }
