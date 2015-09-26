@@ -1,5 +1,12 @@
 <?php
 
+/*
+ * Item.php
+ *
+ * Reification of any item in the world
+ * 
+ */
+
 namespace Knf\World;
 
 class Item
@@ -45,5 +52,10 @@ class Item
 
         return true;
     }
+    
+    public function execCycle()
+    {
+		return null;
+	}
 
 }
